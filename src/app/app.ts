@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 import { ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../environments/environment';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -40,9 +41,11 @@ ngAfterViewInit(): void {
   });
 }
 loadBuildings() {
-  fetch('http://127.0.0.1:8000/buildings')
-    .then(res => res.json())
-    .then(data => {
+ 
+
+fetch(`${environment.apiUrl}/buildings`)
+  .then(res => res.json())
+  .then((data: any[]) => {
 
       console.log("DATA:", data);
 
