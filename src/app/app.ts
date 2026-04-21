@@ -23,7 +23,7 @@ export class AppComponent implements AfterViewInit {
   selectedBuilding: any = null;
   searchTerm: string = '';
 
-  // form
+  
   newName = '';
   newLat: number | null = null;
   newLng: number | null = null;
@@ -56,6 +56,8 @@ loadBuildings() {
     this.updateChart();
   });
 }
+
+
 updateMap() {
   const data = this.filteredBuildings();
 
@@ -102,6 +104,8 @@ updateChart() {
     this.chart.update();
   }
 }
+
+
 focusBuilding(b: any) {
   this.selectedBuilding = b;
 
@@ -112,19 +116,20 @@ focusBuilding(b: any) {
     });
   }
 }
+
 getBuildings() {
   return fetch(`${environment.apiUrl}/buildings`)
     .then(r => r.json());
 }
 
-  // 🔍 FILTER
+ 
   filteredBuildings() {
     return this.buildings.filter(b =>
       b.name.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 
-  // ➕ CREATE
+  
   addBuilding() {
     if (!this.newName || !this.newLat || !this.newLng || !this.newEnergy) return;
 
@@ -139,14 +144,14 @@ getBuildings() {
     });
   }
 
-  // 🗑️ DELETE
+  
   deleteBuilding(id: number) {
     this.api.deleteBuilding(id).then(() => {
       this.loadBuildings();
     });
   }
 
-  // 🎨 COLOR
+  
   getColor(e: number) {
     if (e > 1000) return 'red';
     if (e > 700) return 'orange';
