@@ -59,7 +59,7 @@ loadBuildings() {
 updateMap() {
   const data = this.filteredBuildings();
 
-  this.markersLayer.clearLayers(); // limpia siempre
+  this.markersLayer.clearLayers();
 
   if (!data || data.length === 0) return;
 
