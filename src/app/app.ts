@@ -22,13 +22,25 @@ export class AppComponent implements AfterViewInit {
   buildings: any[] = [];
   selectedBuilding: any = null;
   searchTerm: string = '';
+  loading: boolean = false;
 
   
   newName = '';
   newLat: number | null = null;
   newLng: number | null = null;
   newEnergy: number | null = null;
-
+demoBuildings = [
+  { name: "Hospital Lleida", lat: 41.615, lng: 0.63, energy: 1200 },
+  { name: "School Lleida", lat: 41.62, lng: 0.61, energy: 800 },
+  { name: "Library Lleida", lat: 41.618, lng: 0.625, energy: 500 },
+  { name: "University Campus", lat: 41.61, lng: 0.62, energy: 1500 },
+  { name: "City Hall", lat: 41.617, lng: 0.621, energy: 900 },
+  { name: "Sports Center", lat: 41.619, lng: 0.635, energy: 700 },
+  { name: "Museum", lat: 41.616, lng: 0.628, energy: 650 },
+  { name: "Train Station", lat: 41.613, lng: 0.64, energy: 1100 },
+  { name: "Mall Center", lat: 41.62, lng: 0.615, energy: 1300 },
+  { name: "Office Tower", lat: 41.618, lng: 0.618, energy: 1400 }
+];
   constructor(private api: ApiService) {}
 
   ngAfterViewInit() {
@@ -44,19 +56,28 @@ export class AppComponent implements AfterViewInit {
 
 
 loadBuildings() {
-  this.api.getBuildings().then(data => {
-     console.log("FRONT DATA:", data);
-    this.buildings = data;
+  this.loading = true;
 
-    if (data.length > 0) {
-      this.selectedBuilding = data[0]; 
+  this.api.getBuildings().then(data => {
+
+    console.log("DATA:", data);
+
+   
+    if (!data || data.length === 0) {
+      console.log("Using demo buildings");
+      this.buildings = this.demoBuildings;
+    } else {
+      this.buildings = data;
     }
+
+    this.selectedBuilding = this.buildings[0];
 
     this.updateMap();
     this.updateChart();
+
+    this.loading = false;
   });
 }
-
 
 updateMap() {
   const data = this.filteredBuildings();
@@ -164,4 +185,17 @@ getBuildings() {
     this.newLng = null;
     this.newEnergy = null;
   }
+  getTotalEnergy() {
+  return this.buildings.reduce((sum, b) => sum + b.energy, 0);
+}
+
+getAvgEnergy() {
+  return this.buildings.length
+    ? this.getTotalEnergy() / this.buildings.length
+    : 0;
+}
+
+getMaxEnergy() {
+  return Math.max(...this.buildings.map(b => b.energy));
+}
 }
