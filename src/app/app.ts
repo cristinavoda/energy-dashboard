@@ -24,7 +24,7 @@ export class AppComponent implements AfterViewInit {
   searchTerm: string = '';
   loading: boolean = false;
 
-  
+
   newName = '';
   newLat: number | null = null;
   newLng: number | null = null;
@@ -52,8 +52,41 @@ demoBuildings = [
     this.markersLayer.addTo(this.map);
 
     this.loadBuildings();
-  }
+     this.createChart();
 
+  }
+createChart() {
+
+  setTimeout(() => {
+
+    const canvas = document.getElementById('energyChart') as HTMLCanvasElement;
+
+    if (!canvas) {
+      console.error("Canvas no encontrado");
+      return;
+    }
+
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    const data = this.buildings;
+
+    this.chart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: data.map(b => b.name),
+        datasets: [{
+          label: 'Energy',
+          data: data.map(b => b.energy),
+
+          backgroundColor: data.map(b => this.getColor(b.energy))
+        }]
+      }
+    });
+
+  }, 0);
+}
 
 loadBuildings() {
   this.loading = true;
@@ -62,7 +95,7 @@ loadBuildings() {
 
     console.log("DATA:", data);
 
-   
+
     if (!data || data.length === 0) {
       console.log("Using demo buildings");
       this.buildings = this.demoBuildings;
@@ -99,33 +132,37 @@ updateMap() {
   });
 }
 
-
 updateChart() {
   const data = this.filteredBuildings();
-
-  if (!data || data.length === 0) return;
 
   const labels = data.map(b => b.name);
   const values = data.map(b => b.energy);
 
+  const colors = data.map(b => this.getColor(b.energy));
+
   if (!this.chart) {
-    this.chart = new Chart('canvas', {
+    const canvas = document.getElementById('energyChart') as HTMLCanvasElement;
+
+    this.chart = new Chart(canvas, {
       type: 'bar',
       data: {
         labels,
         datasets: [{
           label: 'Energy',
-          data: values
+          data: values,
+          backgroundColor: colors
         }]
       }
     });
+
   } else {
     this.chart.data.labels = labels;
     this.chart.data.datasets[0].data = values;
+    this.chart.data.datasets[0].backgroundColor = colors;
+
     this.chart.update();
   }
 }
-
 
 focusBuilding(b: any) {
   this.selectedBuilding = b;
@@ -143,14 +180,14 @@ getBuildings() {
     .then(r => r.json());
 }
 
- 
+
   filteredBuildings() {
     return this.buildings.filter(b =>
       b.name.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 
-  
+
   addBuilding() {
     if (!this.newName || !this.newLat || !this.newLng || !this.newEnergy) return;
 
@@ -165,20 +202,24 @@ getBuildings() {
     });
   }
 
-  
+
   deleteBuilding(id: number) {
     this.api.deleteBuilding(id).then(() => {
       this.loadBuildings();
     });
   }
 
-  
+
   getColor(e: number) {
     if (e > 1000) return 'red';
     if (e > 700) return 'orange';
-    return 'blue';
+    return 'darkcyan';
   }
-
+getEnergyClass(e: number) {
+  if (e > 1200) return 'high';
+  if (e > 800) return 'medium';
+  return 'low';
+}
   resetForm() {
     this.newName = '';
     this.newLat = null;
